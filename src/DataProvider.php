@@ -3,7 +3,7 @@ require_once 'DataLoader.php';
 
 class DataProvider
 {
-    const exchangeRatesApiKey = 'fcf01afcc37e4679b22338413df80341';
+    const exchangeRatesApiKey = ''; // API Key
     private $onlyLiveData; // = true; -> only real time data for every API
     private $exchangeRatesLiveData = true; // = true/false -> real time data, or downloaded data, for the specific API only
     private $data = [];
