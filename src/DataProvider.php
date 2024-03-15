@@ -13,6 +13,10 @@ class DataProvider
     {
         $this->dataLoader = new DataLoader();
         $this->exchangeRatesLiveData = $this->onlyLiveData ?? $this->exchangeRatesLiveData;
+
+        if (empty(self::exchangeRatesApiKey)) {
+            throw new \Exception('API Key not set');
+        }
     }
 
     public function getExRsLatestDateData($date)
