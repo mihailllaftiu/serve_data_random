@@ -1,15 +1,15 @@
-# Serve Data
+# 📊 Serve Data
 
-## Overview
+## 🚀 Overview
 This PHP application serves as a data processor for exchange rate information sourced from the Exchange Rates. It facilitates the retrieval, processing, and storage of exchange rate data based on specified criteria such as date range and source. The logic of the script is designed to handle multiple exchange rates data efficiently. Each class within the application is structured to perform specific tasks, allowing for modularity and extensibility. This design enables classes to be easily called or extended in related contexts, enhancing the overall flexibility and maintainability of the codebase.
 
-## Features
+## 🌟 Features
 - **Data Retrieval**: Utilizes the Open Exchange Rates API to fetch exchange rate data either directly or through saved local files.
 - **Data Processing**: Processes retrieved data to save currency rates into a MySQL database.
 - **CLI Interface**: Allows interaction with the application via the command-line interface, supporting options for specifying start date, end date, and data source.
 - **Error Handling**: Ensures robust error handling, including validation of input parameters and handling of connection errors.
 
-## Components
+## 🛠️ Components
 - **ServeData Class**: Handles CLI execution, argument parsing, and initiation of data processing.
   - **__construct**: Initializes a ServeData object with a DataProcessor instance. Checks if the script is run from the command line interface.
   - **run**: Parses command-line arguments and invokes the DataProcessor to process data based on provided arguments. This function serves as the main entry point for executing the data processing functionality of the application.
@@ -53,7 +53,7 @@ This PHP application serves as a data processor for exchange rate information so
   - **connectViaPDO**: Connects to a database using PDO. This method establishes a connection to a database using PDO (PHP Data Objects), providing a flexible and secure approach to database connectivity.
   - **dbCredentials**: Returns database connection credentials based on the specified driver. This method retrieves database connection credentials based on the specified driver, allowing for dynamic configuration of database connections.   
 
-## Usage
+## 💻 Usage
 To use the application, execute script based on the bellow usage(s), from the command line.
 > [!NOTE]
 > Default usage (start_date is optional, as when it's there it gets automatically the todays data)
@@ -68,9 +68,9 @@ php src/ServeData.php
 > - source=example (optional)
 
 
-## Requirements
+## 📄 Requirements
 - PHP 7.0 or higher
 - MySQL database (PostgreSQL, supported also)
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License
