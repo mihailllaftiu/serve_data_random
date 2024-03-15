@@ -1,7 +1,7 @@
 # Serve Data
 
 ## Overview
-This PHP application serves as a data processor for exchange rate information sourced from the Open Exchange Rates API. It facilitates the retrieval, processing, and storage of exchange rate data based on specified criteria such as date range and source.
+This PHP application serves as a data processor for exchange rate information sourced from the Exchange Rates. It facilitates the retrieval, processing, and storage of exchange rate data based on specified criteria such as date range and source. The logic of the script is designed to handle multiple exchange rates data efficiently. Each class within the application is structured to perform specific tasks, allowing for modularity and extensibility. This design enables classes to be easily called or extended in related contexts, enhancing the overall flexibility and maintainability of the codebase.
 
 ## Features
 - **Data Retrieval**: Utilizes the Open Exchange Rates API to fetch exchange rate data either directly or through saved local files.
