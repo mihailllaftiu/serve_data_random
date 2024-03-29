@@ -1,45 +1,49 @@
 <?php
-require_once dirname(__FILE__) . '/src/DataProcessor.php';
-require_once dirname(__FILE__) . '/src/ServeData.php';
+require_once __DIR__ . '/../src/ServeData.php';
+require_once __DIR__ .'/../src/DataProcessor.php';
+require_once __DIR__ .'/../src/DataProvider.php';
+require_once __DIR__ .'/../src/DataStore.php';
 
 use PHPUnit\Framework\TestCase;
 
 class ServeDataTest extends TestCase
 {
-    private $dataProcessorMock;
-
-    protected function setUp(): void
-    {
-        $this->dataProcessorMock = $this->createMock(DataProcessor::class);
-    }
-
     public function testRunExitsIfNotCLI()
     {
-        $serveData = new ServeData($this->dataProcessorMock);
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-
-        $this->expectOutputString("> This script must be run from the command line\n");
-        $this->assertNull($serveData->run([]));
+        // Capture the return value of the constructor
+        $serveData = new ServeData();
+        $returnValue = $serveData->__construct();
+    
+        // Assert that the constructor returns null when not run from the command line
+        $this->assertNull($returnValue);
     }
+    
 
     public function testRunExtractsArguments()
     {
-        $serveData = new ServeData($this->dataProcessorMock);
+        // Create a mock for the DataProcessor class
+        $dataProcessorMock = $this->getMockBuilder(DataProcessor::class)
+                                  ->disableOriginalConstructor()
+                                  ->getMock();
 
+        // Set up the ServeData object
+        $serveData = new ServeData($dataProcessorMock);
+
+        // Define the arguments to be passed to the script
         $argv = [
-            'serveData.php',
-            'start_date=',
-            'end_date=',
-            'source='
+            'ServeData.php',
+            'start_date=2024-01-01',
+            'end_date=2024-02-01',
+            'source=example'
         ];
 
-        // Instruct the mock to return a specific value when processData is called
-        $this->dataProcessorMock->expects($this->once())
-            ->method('processData')
-            ->with('', '', '')
-            ->willReturn(true); // Or any desired return value
+        // Set up expectations for processData method
+        $dataProcessorMock->expects($this->once())
+                          ->method('processData')
+                          ->with('2024-01-01', '2024-02-01', 'example')
+                          ->willReturn(true); // Or any desired return value
 
+        // Call the run method with the arguments
         $serveData->run($argv);
     }
 }

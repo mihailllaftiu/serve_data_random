@@ -6,96 +6,178 @@ class DataFetcher
     private $curlMulti;
     private $handles;
 
+    /**
+     * Constructor for initializing the object.
+     */
     public function __construct()
     {
+        // Initialize the curl multi handle
         $this->curlMulti = curl_multi_init();
         $this->handles = [];
     }
 
-    public function downloadDirectlyThroughApi($url): array
+    /**
+     * Download data directly from the API.
+     *
+     * This function downloads data from the API using cURL.
+     * It returns the downloaded data in the form of an associative array.
+     *
+     * @param string $url The URL to download data from
+     * @return array<string,mixed> The downloaded data in the form of an associative array
+     * @throws Exception If there is an error in the cURL request or
+     *                          if there is an error in decoding the JSON response
+     */
+    public function downloadDirectlyThroughApi(string $url): array
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => ["Content-Type: application/json"]
-        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_ENCODING, "");
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+        $response = curl_exec($ch);
 
-        curl_multi_add_handle($this->curlMulti, $ch);
-        $this->handles[] = $ch;
+        // Check for cURL errors
+        if ($response === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            error_log("cURL error: " . $error);
+            throw new Exception("cURL error: $error");
+        }
 
-        do {
-            curl_multi_exec($this->curlMulti, $active);
-            usleep(10000); // Sleep for a short time to avoid high CPU usage
-        } while ($active > 0);
-
-        $response = curl_multi_getcontent($ch);
-        curl_multi_remove_handle($this->curlMulti, $ch);
         curl_close($ch);
-
         $data = json_decode($response, true);
+
         return $data;
     }
 
-    public function downloadAndUseTheseData($url, $date, $endDate = null): array
+    /**
+     * Download and use data from the given URL and dates.
+     *
+     * This function downloads data from the given URL using the `downloadDirectlyThroughApi`
+     * function and saves it to a file using the given dates as the file name.
+     * It then reads the data from the file and returns it as an array.
+     *
+     * @param string $url The URL to download data from
+     * @param string $date The date of the JSON file
+     * @param string|null $endDate The end date of the JSON file (optional)
+     * @return array The downloaded data from the file
+     */
+    public function downloadAndUseTheseData(string $url, string $date, ?string $endDate = null): array
     {
         $response = $this->downloadDirectlyThroughApi($url);
-        $pathFile = $this->formatFilePath($url, $date, $endDate);
+        $pathFile = $this->formatFilePath($date, $url, $endDate);
         file_put_contents($pathFile, json_encode($response, JSON_PRETTY_PRINT));
 
         echo ">> Data fetched successfully\n\n";
         return $this->useDownloadedData($url, $date, $endDate);
     }
 
-    public function useDownloadedData($url, $date, $endDate = null): array
+    /**
+     * Retrieves and decodes data from a downloaded JSON file.
+     *
+     * @param string $url The URL of the JSON file.
+     * @param string $date The date of the JSON file.
+     * @param string|null $endDate The end date of the JSON file (optional).
+     * @return array The decoded JSON data.
+     */
+    public function useDownloadedData(string $url, string $date, ?string $endDate = null): array
     {
-        $filePath = $this->formatFilePath($url, $date, $endDate);
+        $filePath = $this->formatFilePath($date, $url, $endDate);
         return json_decode(file_get_contents($filePath), true, 512, JSON_OBJECT_AS_ARRAY);
     }
 
-    public function checkWhetherFilePathExists($date, $endDate = null): bool
+    /**
+     * Checks whether the file path exists for a given date and optional end date.
+     *
+     * @param string $url The URL to extract the domain name from.
+     * @param string $date The date to check the file path for.
+     * @param string|null $endDate The optional end date to check the file path for.
+     * @return bool Returns true if the file path exists, false otherwise.
+     */
+    public function checkWhetherFilePathExists(string $url, string $date, ?string $endDate = null): bool
     {
         $this->checkIfTmpFolderExists();
-        $filePath = $this->formatFilePath($date, $endDate);
+        $filePath = $this->formatFilePath($date, $url, $endDate);
         return file_exists($filePath);
     }
 
-    public function formatFilePath($url, $date, $endDate = null): string
+    /**
+     * Format file path based on URL, date, and optional end date.
+     *
+     * @param string $url The URL to extract the domain name from.
+     * @param string $date The date to include in the file path.
+     * @param string|null $endDate Optional end date to include in the file path.
+     * @return string The formatted file path.
+     */
+    public function formatFilePath(string $date, string $url, ?string $endDate = null): string
     {
         $source = $this->getDomainNameFromUrl($url);
-        return self::STORE_DIR . $source . "_" . $date . ($endDate ? "_$endDate" : "") . ".json";
+        return self::STORE_DIR . $source . "_" . (string) $date . ($endDate ? "_" . (string) $endDate : "") . ".json";
     }
 
-    public function checkIfTmpFolderExists()
+    /**
+     * Check if the temporary folder exists and create it if necessary.
+     *
+     * This method checks if the temporary folder specified by the STORE_DIR class constant
+     * exists. If the folder does not exist, it creates it recursively using the
+     * mkdir function with the 0777 permission.
+     *
+     * @param string $dir The directory path to check.
+     * @param int $mode The folder permissions to use when creating the folder.
+     * @param bool $recursive Whether to create the folder recursively if it does not exist.
+     * @return bool True if the folder was created or already exists, false otherwise.
+     */
+    public function checkIfTmpFolderExists(string $dir = self::STORE_DIR, int $mode = 0777, bool $recursive = true): bool
     {
-        if (!file_exists(self::STORE_DIR)) {
-            mkdir(self::STORE_DIR, 0777, true); // Recursive directory creation
-        }
+        return !file_exists($dir) ? mkdir($dir, $mode, $recursive) : true;
     }
 
-    public function getDomainNameFromUrl($url): string
+    /**
+     * Extract the domain name from a given URL.
+     *
+     * This method extracts the domain name from a given URL.
+     * For example, if the given URL is "https://www.example.com", this method
+     * will return "www".
+     *
+     * @param string $url The URL to extract the domain name from (e.g. "https://www.example.com").
+     * @return string The extracted domain name (e.g. "www").
+     */
+    public function getDomainNameFromUrl(string $url): string
     {
         // Parse the URL
-        $parsedUrl = parse_url($url);
-        $host = $parsedUrl['host'];
-        $parts = explode('.', $host);
-        $domainName = $parts[0];
+        $parsedUrl = parse_url($url); 
+        $host = $parsedUrl['host'] ?? '';
+        $parts = explode('.', $host); 
+        $domainName = $parts[0] ?? '';
 
         return $domainName;
     }
 
+
+    /**
+     * Destructor for the DataFetcher class.
+     *
+     * This method is called when the object is about to be destroyed
+     * and is responsible for cleaning up resources.
+     *
+     * @return void
+     */
     public function __destruct()
     {
         foreach ($this->handles as $handle) {
             curl_multi_remove_handle($this->curlMulti, $handle);
+        }
+
+        foreach ($this->handles as $handle) {
             curl_close($handle);
         }
+
         curl_multi_close($this->curlMulti);
     }
+
 }

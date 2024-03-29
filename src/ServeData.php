@@ -5,6 +5,14 @@ class ServeData
 {
     private $dataProcessor;
     
+    /**
+     * Constructor for the class.
+     *
+     * This constructor sets the DataProcessor object used by the class.
+     *
+     * @param DataProcessor|null $dataProcessor An optional DataProcessor object.
+     *     If not provided, a new instance of DataProcessor will be created.
+     */
     public function __construct(DataProcessor $dataProcessor = null)
     {
         // Check if running from CLI
@@ -13,13 +21,22 @@ class ServeData
             return;
         }
 
-        $this->dataProcessor = $dataProcessor;
+        $this->dataProcessor = $dataProcessor ?? new DataProcessor();
     }
 
-    public function run($argv)
+
+    /**
+     * Main function for running the script.
+     *
+     * This function gets called when the script is executed from the command line.
+     * It parses the provided command line arguments and passes them to the DataProcessor
+     * to process the data.
+     *
+     * @param string[] $argv The command line arguments.
+     * @return void
+     */
+    public function run(array $argv): void
     {
-        $numArgs = count($argv);
-        
         // Get CLI arguments
         $startDate = null;
         $endDate = null;
@@ -28,15 +45,26 @@ class ServeData
         // Extract command-line arguments
         foreach ($argv as $arg) {
             if (strpos($arg, 'start_date=') !== false) {
-                if (substr($arg, strpos($arg, '=') + 1) !== '') $startDate = substr($arg, strpos($arg, '=') + 1) ?? 'latest';
-            } elseif (strpos($arg, 'end_date=') !== false) {
-                if (substr($arg, strpos($arg, '=') + 1) !== '') $endDate = substr($arg, strpos($arg, '=') + 1) ?? '';
-            } elseif (strpos($arg, 'source=') !== false) {
-                if (substr($arg, strpos($arg, '=') + 1) !== '') $source = substr($arg, strpos($arg, '=') + 1) ?? 'empty';
+                // If a start date is provided, set the variable to its value,
+                // otherwise set it to 'latest'
+                $startDate = substr($arg, strpos($arg, '=') + 1) ?? $startDate = date('Y-m-d');
+            } else if ($startDate === null) {
+                $startDate = $startDate = date('Y-m-d');
+            }
+            if (strpos($arg, 'end_date=') !== false) {
+                // If an end date is provided, set the variable to its value,
+                // otherwise set it to an empty string
+                $endDate = substr($arg, strpos($arg, '=') + 1) ?? '';
+            }
+            if (strpos($arg, 'source=') !== false) {
+                // If a source is provided, set the variable to its value,
+                // otherwise set it to 'empty'
+                $source = substr($arg, strpos($arg, '=') + 1) ?? 'empty';
             }
         }
 
-        return $this->dataProcessor->processData($startDate, $endDate, $source);
+        // Pass the arguments to the data processor and let it do its magic
+        $this->dataProcessor->processData($startDate, $endDate, $source);
     }
 }
 

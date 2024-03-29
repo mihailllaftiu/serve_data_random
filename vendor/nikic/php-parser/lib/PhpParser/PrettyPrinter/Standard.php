@@ -172,7 +172,7 @@ class Standard extends PrettyPrinterAbstract {
         throw new \Exception('Invalid string kind');
     }
 
-    protected function pScalar_InterpolatedString(Scalar\InterpolatedString $node): string {
+    protected function pScalar_InterpolatedString(Scalar\Interpolatedstring $node): string {
         if ($node->getAttribute('kind') === Scalar\String_::KIND_HEREDOC) {
             $label = $node->getAttribute('docLabel');
             if ($label && !$this->encapsedContainsEndLabel($node->parts, $label)) {
