@@ -132,7 +132,8 @@ class DataProcessor
             exit;
         }
 
-        if (DateTimeImmutable::createFromFormat('Y-m-d', $startDate) > DateTimeImmutable::createFromFormat('Y-m-d', $endDate)) {
+        if (($startDate !== 'latest' && $endDate !==null) && 
+            (DateTimeImmutable::createFromFormat('Y-m-d', $startDate) > DateTimeImmutable::createFromFormat('Y-m-d', $endDate))) {
             echo ">> Start date must be before end date\n";
             error_log(">> Start date must be before end date", 0);
             exit;

@@ -15,6 +15,7 @@ class DataProvider
         $this->exchangeRatesLiveData = $this->onlyLiveData ?? $this->exchangeRatesLiveData;
 
         if (empty(self::exchangeRatesApiKey)) {
+            error_log('API Key not set');
             throw new \Exception('API Key not set');
         }
     }

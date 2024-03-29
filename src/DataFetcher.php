@@ -1,7 +1,7 @@
 <?php
 class DataFetcher
 {
-    const STORE_DIR = 'tmp/';
+    const STORE_DIR = __DIR__ . '/../tmp/';
 
     private $curlMulti;
     private $handles;
