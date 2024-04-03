@@ -44,7 +44,7 @@ You have to setup your DB first, so the data have to be store somewhere.
 
 To use the application, execute script based on the bellow usage(s), from the command line.
 > [!NOTE]
-> Default usage (start_date is optional, as when it's there it gets automatically the todays data)
+> Default usage (start_date is optional, as when it's not there it gets automatically the todays data)
 ```
 php ServeData.php
 ```
