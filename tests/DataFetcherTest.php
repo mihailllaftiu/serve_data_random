@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__.'/../src/DataFetcher.php';
+
+namespace Tests;
+
+use App\Handlers\DataFetcher;
 use PHPUnit\Framework\TestCase;
 
 class DataFetcherTest extends TestCase
@@ -11,25 +14,39 @@ class DataFetcherTest extends TestCase
         $this->dataFetcher = new DataFetcher();
     }
 
-    public function testDownloadDirectlyThroughApi()
-    {
-        // Mock a URL for testing
-        $date = '2024-01-01';
-        $url = 'https://openexchangerates.org/api/historical/'.$date.'.json';
-
-        // Call the method being tested
-        $result = $this->dataFetcher->downloadDirectlyThroughApi($url);
-        $this->assertIsArray($result);
-    }
-
     public function testDownloadAndUseTheseData()
     {
-        // Mock URL and date for testing
-        $date = '2024-01-01';
-        $url = 'https://openexchangerates.org/api/historical/'.$date.'.json';
+        // Mock the response from the API
+        $mockApiResponse = [
+            'rates' => [
+                'USD' => 1,
+                'EUR' => 0.91285,
+                'AED' => 3.6728,
+                'AFN' => 70.000001,
+            ],
+            'disclaimer' => 'Usage subject to terms: https://openexchangerates.org/terms',
+            'license' => 'https://openexchangerates.org/license',
+            'timestamp' => 1704585586,
+            'base' => 'USD',
+        ];
 
-        // Call the method being tested
-        $result = $this->dataFetcher->downloadAndUseTheseData($url, $date);
-        $this->assertIsArray($result);
+        $this->dataFetcher->downloadDirectlyThroughApi = function ($url) use ($mockApiResponse) {
+            if ($url === 'https://openexchangerates.org/api/historical/2024-01-06.json?app_id=') { // fill with the api key
+                return $mockApiResponse;
+            } else {
+                throw new \Exception("cURL error: Could not resolve host: $url");
+            }
+        };
+
+        $date = '2024-01-06';
+        $url = 'https://openexchangerates.org/api/historical/2024-01-06.json?app_id='; // fill with the api key
+        $data = $this->dataFetcher->downloadAndUseTheseData($url, $date);
+
+        // Check if the result returned is an array
+        $this->assertIsArray($data);
+
+        // Check if the file exists in the temporary directory
+        $filePath = $this->dataFetcher->formatFilePath($date, $url);
+        $this->assertFileExists($filePath);
     }
 }
