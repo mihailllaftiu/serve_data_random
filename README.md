@@ -1,9 +1,9 @@
 ## 🚀 Overview
-This PHP application is designed to handle exchange rate data retrieval, processing, and storage. It utilizes the Open Exchange Rates API (as an example) for fetching exchange rate data and stores it in a MySQL database. The application consists of several classes, each responsible for specific tasks such as data retrieval, processing, and database interaction. Through modular design and encapsulation, the application achieves flexibility and maintainability, for the current example or for any other relevant ER platform that can be extended.
+This PHP application is designed to handle exchange rate data retrieval, processing, and storage. It utilizes the Open Exchange Rates API (as an example) for fetching exchange rate data and stores it in a MySQL (as well as PostgreSQL) database. The application consists of several classes, each responsible for specific tasks such as data retrieval, processing, and database interaction. Through modular design and encapsulation, the application achieves flexibility and maintainability, for the current example or for any other relevant ER platform that can be extended.
 
 ## 🌟 Features
 - **Data Retrieval**: Fetch exchange rate data from the Open Exchange Rates API either directly or through saved local files.
-- **Data Processing**: Process retrieved data to save currency rates into a MySQL database.
+- **Data Processing**: Process retrieved data to save currency rates into a MySQL (as well as PostgreSQL) database.
 - **Error Handling**: Ensure robust error handling, including validation of input parameters and handling of connection errors.
 - **CLI Interface**: Interact with the application via the command-line interface, supporting options for specifying start date, end date, and data source.
 
